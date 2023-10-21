@@ -20,6 +20,14 @@ commands:
             sudo apt install software-properties-common -y
             sudo add-apt-repository --yes --update ppa:ansible/ansible
             sudo apt install ansible -y
+  install_make:
+    description: Install make
+    steps:
+      - run:
+          name: Install make
+          command: |
+            apt-get update
+            apt-get install make
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
@@ -41,18 +49,17 @@ jobs:
       - image: python:3.9.18-slim-bullseye
     steps:
       - checkout
+      - install_make
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "requirements.txt" }}
             - v1-dependencies-
-      # run build
       - run:
           name: install dependencies
           command: |
             python3 -m venv venv
             . venv/bin/activate
             make install
-      # run lint
       - run:
           name: run lint
           command: |
@@ -62,6 +69,8 @@ jobs:
           paths:
             - ./venv
           key: v1-dependencies-{{ checksum "requirements.txt" }}
+
+
 
 workflows:
   default:

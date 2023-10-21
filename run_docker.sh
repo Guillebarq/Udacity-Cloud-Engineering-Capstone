@@ -4,7 +4,7 @@
 
 # Step 1:
 # Build image and add a descriptive tag
-docker build --tag=joknes-in-a-container .
+docker build --tag=jokes-in-a-container .
 
 # Step 2: 
 # List docker images
@@ -12,4 +12,4 @@ docker images
 
 # Step 3: 
 # Run flask app
-docker run -it --rm --name joknes-in-a-container -p 5000:5000 joknes-in-a-container
+docker run -it --rm --name jokes-in-a-container -p 5000:5000 jokes-in-a-container
