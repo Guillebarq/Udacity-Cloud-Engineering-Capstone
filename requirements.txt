@@ -1,4 +1,6 @@
 flask
 pyjokes
+Joking
 randimage
+requests
 PyYAML==6.0
