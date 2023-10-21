@@ -110,14 +110,24 @@ jobs:
           name: Install dependencies
           command: yum install -y tar gzip
       - run:
-          name: Ensure EKS network exists
+          name: Deploy Kubernetes Network
           command: |
             aws cloudformation deploy \
               --template-file infrastructure/network-infra.yml \
               --tags project=${ENVIRONMENT_NAME}-project \
               --stack-name "${ENVIRONMENT_NAME}-kube-network" \
-              --region us-east-1 \
+              --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://infrastructure/network-parameters.json
+      - run:
+          name: Deploy EKS Kube Cluster
+          command: |
+            aws cloudformation deploy \
+              --template-file infrastructure/kubernetes.yml \
+              --tags project=${ENVIRONMENT_NAME}-project \
+              --stack-name "${ENVIRONMENT_NAME}-kube-cluster" \
+              --region ${AWS_DEFAULT_REGION} \
+              --parameter-overrides file://infrastructure/kubernetes-parameters.json \
+              --capabilities CAPABILITY_IAM
 
 workflows:
   default:
