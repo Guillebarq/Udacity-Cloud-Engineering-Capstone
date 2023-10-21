@@ -37,14 +37,6 @@ commands:
           command: |
             apt-get update
             apt-get install make
-  install_hadolint:
-    description: Install Hadolint
-    steps:
-      - run:
-          name: Install Hadolint
-          command: |
-            wget https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
-            ./hadolint --help
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
@@ -68,7 +60,6 @@ jobs:
       - checkout
       - install_make
       - install_wget
-      # - install_hadolint
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "requirements.txt" }}
@@ -92,25 +83,20 @@ jobs:
 upload-docker:
     docker:
       - image: circleci/golang:1.15
-
     working_directory: ~/repo
-
     steps:
       - checkout
-
       - setup_remote_docker:
           version: 20.10.14
-
       - run:
           name: Build docker container
           command: |
             docker build --tag=$DOCKER_IMAGE_NAME .
             docker image ls
-
       - run:
           name: Upload Docker to Dockerhub
           command: |
-            echo "Docker ID and Image: $DOCKER_IMAGE_NAME"
+            echo "Docker Image: $DOCKER_IMAGE_NAME"
             docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
             docker tag $DOCKER_IMAGE_NAME $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_WORKFLOW_ID
             docker push $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:$CIRCLE_WORKFLOW_ID
@@ -119,4 +105,5 @@ workflows:
   default:
     jobs:
       - build-app
-      # - upload-docker
+      - upload-docker:
+          requires: [build-app]
