@@ -20,6 +20,15 @@ commands:
             sudo apt install software-properties-common -y
             sudo add-apt-repository --yes --update ppa:ansible/ansible
             sudo apt install ansible -y
+  install_wget:
+    description: Install wget
+    steps:
+      - run:
+          name: Install wget
+          command: |
+            apt-get update
+            apt-get install -y wget
+            rm -rf /var/lib/apt/lists/*
   install_make:
     description: Install make
     steps:
@@ -61,6 +70,7 @@ jobs:
       - checkout
       - install_make
       - install_hadolint
+      - install_wget
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "requirements.txt" }}
