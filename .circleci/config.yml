@@ -68,7 +68,7 @@ jobs:
       - checkout
       - install_make
       - install_wget
-      - install_hadolint
+      # - install_hadolint
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "requirements.txt" }}
