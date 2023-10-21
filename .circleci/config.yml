@@ -113,7 +113,7 @@ jobs:
           name: Ensure EKS network exists
           command: |
             aws cloudformation deploy \
-              --template-file infrastructure/network.yml \
+              --template-file infrastructure/network-infra.yml \
               --tags project=${ENVIRONMENT_NAME}-project \
               --stack-name "${ENVIRONMENT_NAME}-kube-network" \
               --region us-east-1 \
