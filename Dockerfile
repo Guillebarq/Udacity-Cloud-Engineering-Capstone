@@ -1,0 +1,13 @@
+FROM python:3.9.18-slim-bullseye
+
+WORKDIR /app
+
+COPY . app.py /app/
+COPY templates/* /app/templates/
+
+RUN pip install --upgrade pip &&\
+    pip install --trusted-host pypi.python.org -r requirements.txt
+
+EXPOSE 80
+
+CMD ["python", "app.py"]

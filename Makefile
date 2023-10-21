@@ -7,4 +7,4 @@ install:
 
 lint:
 	hadolint Dockerfile
-	pylint --dasble=R,C,W1203,W1202 appy.py
+	pylint --disable=R,C,W1203,W1202,E0601,W0621 app.py

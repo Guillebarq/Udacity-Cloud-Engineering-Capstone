@@ -1,7 +1,6 @@
 from flask import Flask, render_template
-import pyjokes 
 import Joking
-import random
+import os
   
 app=Flask(__name__) 
   
@@ -17,29 +16,30 @@ def joke():
 
 @app.route("/animal")
 def animal_joke():
-    joke=Joking.animal_joke()
-    return render_template("joke.html", joke=joke)
+    animal_joke=Joking.animal_joke()
+    return render_template("joke.html", joke=animal_joke)
 
 @app.route("/dad")
 def dad_joke():
-    joke=Joking.random_dad_joke()
-    return render_template("joke.html", joke=joke)
+    dad_joke=Joking.random_dad_joke()
+    return render_template("joke.html", joke=dad_joke)
 
 @app.route("/pun")
 def pun_joke():
-    joke=Joking.Pun()
-    return render_template("joke.html", joke=joke)
+    pun_joke=Joking.Pun()
+    return render_template("joke.html", joke=pun_joke)
 
-@app.route("/dark")
-def dark_joke():
-    joke=Joking.DarkJoke()
-    return render_template("joke.html", joke=joke)
+@app.route("/knock-knock")
+def knock_knock_joke():
+    knock_knock_joke=Joking.Random_knock_knock_joke()
+    return render_template("joke.html", joke=knock_knock_joke)
 
 @app.route("/law")
 def law_joke():
-    joke=Joking.Law_Joke()
-    return render_template("joke.html", joke=joke)
+    law_joke=Joking.Law_Joke()
+    return render_template("joke.html", joke=law_joke)
   
   
 if __name__ == "__main__": 
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)
