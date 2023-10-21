@@ -80,7 +80,7 @@ jobs:
             - ./venv
           key: v1-dependencies-{{ checksum "requirements.txt" }}
 
-upload-docker:
+  upload-docker:
     docker:
       - image: circleci/golang:1.15
     working_directory: ~/repo
