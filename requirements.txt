@@ -1,0 +1,4 @@
+flask
+pyjokes
+randimage
+PyYAML==6.0
