@@ -1,5 +1,5 @@
 flask==3.0.0
-pylint=3.0.1
+pylint==3.0.1
 Joking==3.1.5
 requests==2.31.0
 PyYAML==6.0
