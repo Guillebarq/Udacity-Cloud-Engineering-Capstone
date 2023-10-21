@@ -63,4 +63,7 @@ jobs:
             - ./venv
           key: v1-dependencies-{{ checksum "requirements.txt" }}
 
-  
+workflows:
+  default:
+    jobs:
+      - build-app
