@@ -108,9 +108,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies
-          command: yum install -y tar gzip
-      - run:
           name: Deploy Kubernetes Network
           command: |
             aws cloudformation deploy \
@@ -139,7 +136,7 @@ jobs:
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://infrastructure/node-group-parameters.json \
               --capabilities CAPABILITY_NAMED_IAM
-              
+
       - destroy-environment
 
 workflows:
