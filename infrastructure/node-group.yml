@@ -23,7 +23,7 @@ Resources:
   NodeGroup:
     Type: AWS::EKS::Nodegroup
     Properties:
-      ClusterName: CapstoneProject-cluster
+      ClusterName: CapstoneProject-cluster-${CIRCLE_WORKFLOW_ID:0:7}
       NodegroupName: CapstoneProject-node-group
       NodeRole: !GetAtt NodeInstanceRole.Arn
       ScalingConfig:
