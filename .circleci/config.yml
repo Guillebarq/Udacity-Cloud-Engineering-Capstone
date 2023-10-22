@@ -129,6 +129,7 @@ jobs:
       - run:
           name: Create Node Group
           command: |
+            export ENV0_CF_PARAM_WORKFLOWID=${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation deploy \
               --template-file infrastructure/node-group.yml \
               --tags project=${ENVIRONMENT_NAME}-project-${CIRCLE_WORKFLOW_ID:0:7} \
