@@ -127,7 +127,7 @@ jobs:
               --stack-name "${ENVIRONMENT_NAME}-kube-cluster" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://infrastructure/kubernetes-parameters.json \
-              --capabilities CAPABILITY_IAM
+              --capabilities CAPABILITY_NAMED_IAM
 
 workflows:
   default:
