@@ -30,4 +30,6 @@
 
   roles:
     - install-dependencies
+    - configure-awscli
+    - create-kubeconfig
 
