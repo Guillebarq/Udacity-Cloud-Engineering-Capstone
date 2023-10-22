@@ -43,12 +43,15 @@
     AWS_SECRET_ACCESS_KEY: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
     AWS_DEFAULT_REGION: "{{ lookup('env', 'AWS_DEFAULT_REGION') }}"
   tasks:
-    - name: Set the AWS_ACCESS_KEY_ID
-      shell: "aws configure set aws_access_key_id {{ AWS_ACCESS_KEY_ID }}"
-    - name: Set the AWS_SECRET_ACCESS_KEY
-      shell: "aws configure set aws_secret_access_key {{ AWS_SECRET_ACCESS_KEY }}"
-    - name: Set the AWS_DEFAULT_REGION 
-      shell: "aws configure set default.region {{ AWS_DEFAULT_REGION }}"
+    - name: Run aws configure
+      expect:
+        command: aws configure
+        responses:
+          AWS Access Key ID: {{ AWS_ACCESS_KEY_ID }}
+          AWS Secret Access Key: {{ AWS_SECRET_ACCESS_KEY }}
+          Default region name: {{ AWS_DEFAULT_REGION }}
+          Default output format: ""
+      no_log: true
 
 - name: "Create kubeconfig"
   hosts: ec2
