@@ -43,15 +43,12 @@
     AWS_SECRET_ACCESS_KEY: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
     AWS_DEFAULT_REGION: "{{ lookup('env', 'AWS_DEFAULT_REGION') }}"
   tasks:
-    - name: Print access key value
-      shell: "echo 'Proof it exists - {{ AWS_ACCESS_KEY_ID }}'"
-      register: key
     - name: Set the AWS_ACCESS_KEY_ID
-      shell: "aws configure set AWS_ACCESS_KEY_ID {{ AWS_ACCESS_KEY_ID }}"
+      shell: "aws configure set aws_access_key_id {{ AWS_ACCESS_KEY_ID }}"
     - name: Set the AWS_SECRET_ACCESS_KEY
-      shell: "aws configure set AWS_SECRET_ACCESS_KEY {{ AWS_SECRET_ACCESS_KEY }}"
+      shell: "aws configure set aws_secret_access_key {{ AWS_SECRET_ACCESS_KEY }}"
     - name: Set the AWS_DEFAULT_REGION 
-      shell: "aws configure set AWS_DEFAULT_REGION {{ AWS_DEFAULT_REGION }}"
+      shell: "aws configure set default.region {{ AWS_DEFAULT_REGION }}"
 
     - debug: msg="{{ key.stdout }}"
 
