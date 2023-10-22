@@ -39,7 +39,7 @@ Resources:
   CapstoneProjectCluster:
     Type: AWS::EKS::Cluster
     Properties:
-      Version: default
+      Version: "1.28"
       Name: !Sub ${EnvironmentName}-kube-cluster
       RoleArn: !GetAtt EKSClusterRole.Arn
       ResourcesVpcConfig:
