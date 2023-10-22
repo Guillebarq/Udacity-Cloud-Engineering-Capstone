@@ -1,0 +1,43 @@
+Description: >
+  Guillermo Barquero / Capstone Kube Management EC2 / Udacity 2023
+
+Parameters:
+  EnvironmentName:
+    Description: An Environment name that will be prefixed to resources
+    Default: capstone-project
+    Type: String
+  KeyName:
+    Description: SSH key for management access
+    Default: guillermo-capstone
+    Type: String
+  AMI:
+    Description: Defines the Image-ID of the OS to deploy
+    Default: ami-0767046d1677be5a0
+    Type: String
+
+
+Resources:
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub ${EnvironmentName}-management-Sec-Group
+      GroupDescription: Allow port 22 for management
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+  kube-manager:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      SecurityGroups:
+        - Ref: InstanceSecurityGroup
+      KeyName: !Ref KeyName
+      ImageId: !Ref AMI
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-kube-manager
+        - Key: Project
+          Value: !Ref EnvironmentName

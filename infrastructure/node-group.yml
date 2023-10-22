@@ -1,3 +1,6 @@
+Description: >
+  Guillermo Barquero / Capstone Node Grooup / Udacity 2023
+
 Resources:
   NodeInstanceRole:
     Type: "AWS::IAM::Role"

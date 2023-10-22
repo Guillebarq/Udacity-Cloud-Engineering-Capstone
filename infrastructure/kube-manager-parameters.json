@@ -1,0 +1,14 @@
+[
+	{
+		"ParameterKey": "EnvironmentName",
+		"ParameterValue": "CapstoneProject"
+	},
+    {
+		"ParameterKey": "KeyName",
+		"ParameterValue": "guillermo-capstone"
+	},
+    {
+		"ParameterKey": "AMI",
+		"ParameterValue": "ami-0c4f7023847b90238"
+	}
+]

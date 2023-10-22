@@ -107,25 +107,25 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      # - run:
-      #     name: Deploy Kubernetes Network
-      #     command: |
-      #       aws cloudformation deploy \
-      #         --template-file infrastructure/network-infra.yml \
-      #         --tags project=${ENVIRONMENT_NAME}-project \
-      #         --stack-name "${ENVIRONMENT_NAME}-kube-network" \
-      #         --region ${AWS_DEFAULT_REGION} \
-      #         --parameter-overrides file://infrastructure/network-parameters.json
-      # - run:
-      #     name: Deploy EKS Kube Cluster
-      #     command: |
-      #       aws cloudformation deploy \
-      #         --template-file infrastructure/kubernetes.yml \
-      #         --tags project=${ENVIRONMENT_NAME}-project \
-      #         --stack-name "${ENVIRONMENT_NAME}-cluster" \
-      #         --region ${AWS_DEFAULT_REGION} \
-      #         --parameter-overrides file://infrastructure/kubernetes-parameters.json \
-      #         --capabilities CAPABILITY_NAMED_IAM
+      - run:
+          name: Deploy Kubernetes Network
+          command: |
+            aws cloudformation deploy \
+              --template-file infrastructure/network-infra.yml \
+              --tags project=${ENVIRONMENT_NAME}-project \
+              --stack-name "${ENVIRONMENT_NAME}-kube-network" \
+              --region ${AWS_DEFAULT_REGION} \
+              --parameter-overrides file://infrastructure/network-parameters.json
+      - run:
+          name: Deploy EKS Kube Cluster
+          command: |
+            aws cloudformation deploy \
+              --template-file infrastructure/kubernetes.yml \
+              --tags project=${ENVIRONMENT_NAME}-project \
+              --stack-name "${ENVIRONMENT_NAME}-cluster" \
+              --region ${AWS_DEFAULT_REGION} \
+              --parameter-overrides file://infrastructure/kubernetes-parameters.json \
+              --capabilities CAPABILITY_NAMED_IAM
       - run:
           name: Create Node Group
           command: |
@@ -137,15 +137,35 @@ jobs:
               --parameter-overrides file://infrastructure/node-group-parameters.json \
               --capabilities CAPABILITY_NAMED_IAM
 
-      # - destroy-environment
+      - destroy-environment
 
-
+  deploy-kube-manager:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Create kubernetes management EC2 Instance
+          command: |
+            aws cloudformation deploy \
+              --template-file infrastructure/kube-manager.yml \
+              --tags project=${ENVIRONMENT_NAME}-project \
+              --stack-name "${ENVIRONMENT_NAME}-kube-manager" \
+              --region ${AWS_DEFAULT_REGION} \
+              --parameter-overrides file://infrastructure/kube-manager-parameters.json     
 
   save-workflow-id:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt install -y tar gzip curl
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip -qq awscliv2.zip
+            sudo ./aws/install
       - run:
           name: Check Running Stacks
           command: |
@@ -161,7 +181,6 @@ jobs:
               echo "Didn't send workflow ID!"
             fi
       # - destroy-environment
-            
 
 workflows:
   default:
@@ -169,7 +188,8 @@ workflows:
       - build-app
       - upload-docker:
           requires: [build-app]
-      - deploy-infrastructure:
-          requires: [upload-docker]
-      - save-workflow-id:
-          requires: [deploy-infrastructure]
+      # - deploy-infrastructure:
+      #     requires: [upload-docker]
+      # - save-workflow-id:
+      #     requires: [deploy-infrastructure]
+      - deploy-kube-manager
