@@ -171,6 +171,24 @@ jobs:
           paths:
             - inventory.txt
 
+  configure-manager-instance:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - install_ansible
+      - add_ssh_keys:
+          fingerprints:
+            - "eb:e7:c6:8f:ab:a7:17:d8:f8:d0:a9:95:28:b2:ba:ed"
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Configure Kubernetes Management EC2
+          command: |
+            cat ~/inventory.txt
+            cd ansible
+            ansible-playbook -i ~/inventory.txt configure-management-server.yml
+
   save-workflow-id:
     docker:
       - image: circleci/node:13.8.0
@@ -205,8 +223,11 @@ workflows:
       - build-app
       - upload-docker:
           requires: [build-app]
-      # - deploy-infrastructure:
-      #     requires: [upload-docker]
-      # - save-workflow-id:
-      #     requires: [deploy-infrastructure]
-      - deploy-kube-manager
+      - deploy-infrastructure:
+          requires: [upload-docker]
+      - deploy-kube-manager:
+          requires: [deploy-infrastructure]
+      - configure-manager-instance:
+          requires: [deploy-kube-manager]
+      - save-workflow-id:
+          requires: [configure-manager-instance]

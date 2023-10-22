@@ -1,0 +1,57 @@
+---
+- name: Download awscliv2 installer.
+  unarchive:
+    src: "https://awscli.amazonaws.com/awscli-exe-linux-{{ ansible_architecture }}.zip"
+    dest: "{{ executable_temp_dir }}"
+    remote_src: true
+    creates: '{{ executable_temp_dir }}/aws'
+    mode: 0755
+
+- name: Run the installer.
+  command:
+  args:
+    cmd: "{{ executable_temp_dir }}/aws/install"
+    creates: /usr/local/bin/aws
+  become: true
+  register: aws_install
+
+- name: "Show installer output."
+  debug:
+    var: aws_install
+    verbosity: 2
+
+- name: "Download kubectl"
+  shell: curl -o kubectl curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.28.2/2023-10-17/bin/linux/amd64/kubectl
+  args:
+    chdir: $HOME
+
+- name: "Apply execute permissions to kubectl"
+  shell: chmod +x ./kubectl
+  args:
+    chdir: $HOME
+
+- name: "Copy the binary to bin"
+  shell: mv kubectl /usr/local/bin
+  args:
+    chdir: $HOME
+
+- name: "Copy the binary to bin"
+  shell: kubectl
+  args:
+    chdir: $HOME
+
+
+# - name: "Download The AWS CLI Archive"
+#   shell: curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+#   args:
+#     chdir: $HOME
+
+# - name: "Unzip the AWS CLI Archive"
+#   shell: unzip awscliv2.zip
+#   args:
+#     chdir: $HOME
+
+# - name: "Install the AWS CLI"
+#   shell: ./aws/install
+#   args:
+#     chdir: $HOME
