@@ -48,9 +48,10 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.Workflow_ID >>
-            aws s3 rm s3://udapeople-<<parameters.Workflow_ID>> --recursive
-            aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.Workflow_ID >>
+            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-network<< parameters.Workflow_ID >>
+            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-cluster<< parameters.Workflow_ID >>
+            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-node-group<< parameters.Workflow_ID >>
+
 
 jobs:
   build-app:
@@ -134,10 +135,12 @@ jobs:
             aws cloudformation deploy \
               --template-file infrastructure/node-group.yml \
               --tags project=${ENVIRONMENT_NAME}-project \
-              --stack-name "${ENVIRONMENT_NAME}-eks-nodegroup" \
+              --stack-name "${ENVIRONMENT_NAME}-kube-node-group" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://infrastructure/node-group-parameters.json \
               --capabilities CAPABILITY_NAMED_IAM
+              
+      - destroy-environment
 
 workflows:
   default:
