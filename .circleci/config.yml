@@ -128,6 +128,16 @@ jobs:
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://infrastructure/kubernetes-parameters.json \
               --capabilities CAPABILITY_NAMED_IAM
+      - run:
+          name: Create Nodegroup
+          command: |
+            aws cloudformation deploy \
+              --template-file infrastructure/node-group.yml \
+              --tags project=${ENVIRONMENT_NAME}-project \
+              --stack-name "${ENVIRONMENT_NAME}-eks-nodegroup" \
+              --region ${AWS_DEFAULT_REGION} \
+              --parameter-overrides file://infrastructure/node-group-parameters.json \
+              --capabilities CAPABILITY_NAMED_IAM
 
 workflows:
   default:
