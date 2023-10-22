@@ -221,13 +221,13 @@ workflows:
   default:
     jobs:
       - build-app
-      - upload-docker:
-          requires: [build-app]
-      - deploy-infrastructure:
-          requires: [upload-docker]
-      - deploy-kube-manager:
-          requires: [deploy-infrastructure]
-      - configure-manager-instance:
-          requires: [deploy-kube-manager]
-      - save-workflow-id:
-          requires: [configure-manager-instance]
+      # - upload-docker:
+      #     requires: [build-app]
+      # - deploy-infrastructure:
+      #     requires: [upload-docker]
+      # - deploy-kube-manager:
+      #     requires: [deploy-infrastructure]
+      - configure-manager-instance
+          # requires: [deploy-kube-manager]
+      # - save-workflow-id:
+      #     requires: [configure-manager-instance]
