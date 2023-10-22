@@ -48,9 +48,9 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-network<< parameters.Workflow_ID >>
-            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-cluster<< parameters.Workflow_ID >>
-            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-node-group<< parameters.Workflow_ID >>
+            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-network-${CIRCLE_WORKFLOW_ID:0:7}<< parameters.Workflow_ID >>
+            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-cluster-${CIRCLE_WORKFLOW_ID:0:7}<< parameters.Workflow_ID >>
+            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-node-group-${CIRCLE_WORKFLOW_ID:0:7}<< parameters.Workflow_ID >>
 
 
 jobs:
@@ -112,8 +112,8 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file infrastructure/network-infra.yml \
-              --tags project=${ENVIRONMENT_NAME}-project \
-              --stack-name "${ENVIRONMENT_NAME}-kube-network" \
+              --tags project=${ENVIRONMENT_NAME}-project-${CIRCLE_WORKFLOW_ID:0:7} \
+              --stack-name "${ENVIRONMENT_NAME}-kube-network-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://infrastructure/network-parameters.json
       - run:
@@ -121,23 +121,44 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file infrastructure/kubernetes.yml \
-              --tags project=${ENVIRONMENT_NAME}-project \
-              --stack-name "${ENVIRONMENT_NAME}-kube-cluster" \
+              --tags project=${ENVIRONMENT_NAME}-project-${CIRCLE_WORKFLOW_ID:0:7} \
+              --stack-name "${ENVIRONMENT_NAME}-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://infrastructure/kubernetes-parameters.json \
               --capabilities CAPABILITY_NAMED_IAM
       - run:
-          name: Create Nodegroup
+          name: Create Node Group
           command: |
             aws cloudformation deploy \
               --template-file infrastructure/node-group.yml \
-              --tags project=${ENVIRONMENT_NAME}-project \
-              --stack-name "${ENVIRONMENT_NAME}-kube-node-group" \
+              --tags project=${ENVIRONMENT_NAME}-project-${CIRCLE_WORKFLOW_ID:0:7} \
+              --stack-name "${ENVIRONMENT_NAME}-kube-node-group-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://infrastructure/node-group-parameters.json \
               --capabilities CAPABILITY_NAMED_IAM
 
       - destroy-environment
+      - save-workflow-id:
+          docker:
+          - image: circleci/node:13.8.0
+          steps:
+            - checkout
+            - run:
+              name: Check Running Stacks
+              command: |
+                aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE >> stacks.txt
+            - run:
+                name: Send migration results to kvdb
+                command: |
+                  if grep -q "StackStatus" ~/stacks.txt
+                  then 
+                    curl --insecure https://kvdb.io/LBcnJjxskczGJWNszqSJsH/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
+                    echo "Sent ID: ${CIRCLE_WORKFLOW_ID:0:7} !"
+                  else
+                    echo "Didn't send workflow ID!"
+                  fi
+            - destroy-environment
+            
 
 workflows:
   default:
