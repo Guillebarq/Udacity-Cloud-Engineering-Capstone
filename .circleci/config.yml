@@ -156,6 +156,17 @@ jobs:
               --stack-name "${ENVIRONMENT_NAME}-kube-manager" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://infrastructure/kube-manager-parameters.json    
+
+  configure-manager-instance:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - install_ansible
+      - install_awscli
+      - add_ssh_keys:
+          fingerprints:
+            - "eb:e7:c6:8f:ab:a7:17:d8:f8:d0:a9:95:28:b2:ba:ed"
       - run:
           name: Extract the IPs of the management instances for Ansible
           command: |
@@ -166,28 +177,16 @@ jobs:
               --filters "Name=tag:Name,Values=${ENVIRONMENT_NAME}-kube-manager*" \
               --output text >> ~/inventory.txt
             cat ~/inventory.txt
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - inventory.txt
-
-  configure-manager-instance:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - install_ansible
-      - add_ssh_keys:
-          fingerprints:
-            - "eb:e7:c6:8f:ab:a7:17:d8:f8:d0:a9:95:28:b2:ba:ed"
-      - attach_workspace:
-          at: ~/
       - run:
           name: Configure Kubernetes Management EC2
           command: |
             cat ~/inventory.txt
             cd ansible
             ansible-playbook -i ~/inventory.txt configure-management-server.yml
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - inventory.txt
 
   save-workflow-id:
     docker:
