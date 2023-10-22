@@ -224,9 +224,9 @@ workflows:
       #     requires: [build-app]
       # - deploy-infrastructure:
       #     requires: [upload-docker]
-      - deploy-kube-manager
+      # - deploy-kube-manager
       #     requires: [deploy-infrastructure]
-      - configure-kube-manager:
-          requires: [deploy-kube-manager]
+      - configure-kube-manager
+          # requires: [deploy-kube-manager]
       # - save-workflow-id:
       #     requires: [configure-manager-instance]
