@@ -2,7 +2,7 @@ Resources:
   NodeInstanceRole:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName: !Sub ${EnvironmentName}-node-group-role
+      RoleName: CapstoneProject-nodegroup-role
       Description: "IAM Role for managing the node group"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
@@ -12,35 +12,35 @@ Resources:
               Service:
                 - ec2.amazonaws.com
             Action:
-              - 'sts:AssumeRole'
+              - sts:AssumeRole
       Path: /
       ManagedPolicyArns:
-        - !Sub "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-        - !Sub "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-        - !Sub "arn:aws:iam::iam::aws:policy/AmazonEKS_CNI_Policy"
+        - "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+        - "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+        - "arn:aws:iam::iam::aws:policy/AmazonEKS_CNI_Policy"
 
 
   NodeGroup:
     Type: AWS::EKS::Nodegroup
     Properties:
-      ClusterName: !Sub ${EnvironmentName}-cluster
-      NodegroupName: !Sub ${EnvironmentName}-node-group
+      ClusterName: CapstoneProject-cluster
+      NodegroupName: CapstoneProject-node-group
       NodeRole: !GetAtt NodeInstanceRole.Arn
       ScalingConfig:
         MaxSize: 2
         MinSize: 1
         DesiredSize: 2
       Subnets:
-        Fn::Split: [ "," , { "!ImportValue": CapstoneProject-PUB-NETS}]
+        Fn::Split: [ ",",!ImportValue CapstoneProject-PUB-NETS]
 
 Outputs:
   NodeInstanceRole:
     Description: The node instance role
     Value: !GetAtt NodeInstanceRole.Arn
     Export:
-      Name: !Sub ${EnvironmentName}-IR
+      Name: CapstoneProject-IR
   NodeGroup:
     Description: The node group for EKS
     Value: !Ref NodeGroup
     Export:
-      Name: !Sub ${EnvironmentName}-NG
+      Name: CapstoneProject-NG
