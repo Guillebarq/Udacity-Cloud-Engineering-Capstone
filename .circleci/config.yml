@@ -152,7 +152,21 @@ jobs:
               --tags project=${ENVIRONMENT_NAME}-project \
               --stack-name "${ENVIRONMENT_NAME}-kube-manager" \
               --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides file://infrastructure/kube-manager-parameters.json     
+              --parameter-overrides file://infrastructure/kube-manager-parameters.json    
+      - run:
+          name: Extract the IPs of the management instances for Ansible
+          command: |
+            echo [ec2] > ~/inventory.txt
+            aws ec2 describe-instances \
+              --region "${AWS_DEFAULT_REGION}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:Name,Values=${ENVIRONMENT_NAME}-kube-manager*" \
+              --output text >> ~/inventory.txt
+            cat ~/inventory.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - inventory.txt
 
   save-workflow-id:
     docker:
