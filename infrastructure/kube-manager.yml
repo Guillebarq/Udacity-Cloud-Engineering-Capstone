@@ -8,7 +8,7 @@ Parameters:
     Type: String
   KeyName:
     Description: SSH key for management access
-    Default: guillermo-capstone
+    Default: udacity-key
     Type: String
   AMI:
     Description: Defines the Image-ID of the OS to deploy
