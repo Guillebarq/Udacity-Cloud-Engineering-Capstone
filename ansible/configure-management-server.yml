@@ -50,8 +50,6 @@
     - name: Set the AWS_DEFAULT_REGION 
       shell: "aws configure set default.region {{ AWS_DEFAULT_REGION }}"
 
-    - debug: msg="{{ key.stdout }}"
-
 - name: "Create kubeconfig"
   hosts: ec2
   user: ubuntu
