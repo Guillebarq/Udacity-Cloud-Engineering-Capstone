@@ -107,25 +107,25 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run:
-          name: Deploy Kubernetes Network
-          command: |
-            aws cloudformation deploy \
-              --template-file infrastructure/network-infra.yml \
-              --tags project=${ENVIRONMENT_NAME}-project \
-              --stack-name "${ENVIRONMENT_NAME}-kube-network" \
-              --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides file://infrastructure/network-parameters.json
-      - run:
-          name: Deploy EKS Kube Cluster
-          command: |
-            aws cloudformation deploy \
-              --template-file infrastructure/kubernetes.yml \
-              --tags project=${ENVIRONMENT_NAME}-project \
-              --stack-name "${ENVIRONMENT_NAME}-cluster" \
-              --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides file://infrastructure/kubernetes-parameters.json \
-              --capabilities CAPABILITY_NAMED_IAM
+      # - run:
+      #     name: Deploy Kubernetes Network
+      #     command: |
+      #       aws cloudformation deploy \
+      #         --template-file infrastructure/network-infra.yml \
+      #         --tags project=${ENVIRONMENT_NAME}-project \
+      #         --stack-name "${ENVIRONMENT_NAME}-kube-network" \
+      #         --region ${AWS_DEFAULT_REGION} \
+      #         --parameter-overrides file://infrastructure/network-parameters.json
+      # - run:
+      #     name: Deploy EKS Kube Cluster
+      #     command: |
+      #       aws cloudformation deploy \
+      #         --template-file infrastructure/kubernetes.yml \
+      #         --tags project=${ENVIRONMENT_NAME}-project \
+      #         --stack-name "${ENVIRONMENT_NAME}-cluster" \
+      #         --region ${AWS_DEFAULT_REGION} \
+      #         --parameter-overrides file://infrastructure/kubernetes-parameters.json \
+      #         --capabilities CAPABILITY_NAMED_IAM
       - run:
           name: Create Node Group
           command: |

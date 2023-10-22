@@ -23,7 +23,7 @@ Resources:
   NodeGroup:
     Type: AWS::EKS::Nodegroup
     Properties:
-      ClusterName: CapstoneProject-cluster
+      ClusterName: CapstoneProject-kube-cluster
       NodegroupName: CapstoneProject-node-group
       NodeRole: !GetAtt NodeInstanceRole.Arn
       ScalingConfig:
