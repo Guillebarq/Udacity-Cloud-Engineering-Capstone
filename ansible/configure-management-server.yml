@@ -1,10 +1,9 @@
 ---
 - name: "Sever Configuration Play"
   hosts: ec2
-  remote_user: ubuntu
+  user: ubuntu
   become: true
   become_method: sudo
-  become_user: root  
   gather_facts: false
   vars:
     ansible_python_interpreter: /usr/bin/python3
