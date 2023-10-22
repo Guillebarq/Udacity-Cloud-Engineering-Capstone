@@ -160,7 +160,7 @@ jobs:
             else
               echo "Didn't send workflow ID!"
             fi
-      - destroy-environment
+      # - destroy-environment
             
 
 workflows:
