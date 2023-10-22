@@ -28,7 +28,7 @@ Resources:
           ToPort: 22
           CidrIp: 0.0.0.0/0
 
-  kube-manager:
+  KubernetesManager:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t2.micro
