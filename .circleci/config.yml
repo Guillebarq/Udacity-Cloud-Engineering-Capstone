@@ -137,7 +137,10 @@ jobs:
               --parameter-overrides file://infrastructure/node-group-parameters.json \
               --capabilities CAPABILITY_NAMED_IAM
 
-      - destroy-environment
+      # - destroy-environment
+
+
+
   save-workflow-id:
     docker:
       - image: circleci/node:13.8.0
