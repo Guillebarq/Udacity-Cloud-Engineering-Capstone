@@ -48,9 +48,9 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-network-<< parameters.Workflow_ID >>
-            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-cluster-<< parameters.Workflow_ID >>
-            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-node-group-<< parameters.Workflow_ID >>
+            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-network
+            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-cluster
+            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-node-group
 
 
 jobs:
@@ -112,8 +112,8 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file infrastructure/network-infra.yml \
-              --tags project=${ENVIRONMENT_NAME}-project-${CIRCLE_WORKFLOW_ID:0:7} \
-              --stack-name "${ENVIRONMENT_NAME}-kube-network-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=${ENVIRONMENT_NAME}-project \
+              --stack-name "${ENVIRONMENT_NAME}-kube-network" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://infrastructure/network-parameters.json
       - run:
@@ -121,19 +121,18 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file infrastructure/kubernetes.yml \
-              --tags project=${ENVIRONMENT_NAME}-project-${CIRCLE_WORKFLOW_ID:0:7} \
-              --stack-name "${ENVIRONMENT_NAME}-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=${ENVIRONMENT_NAME}-project \
+              --stack-name "${ENVIRONMENT_NAME}-cluster" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://infrastructure/kubernetes-parameters.json \
               --capabilities CAPABILITY_NAMED_IAM
       - run:
           name: Create Node Group
           command: |
-            export ENV0_CF_PARAM_WORKFLOWID=${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation deploy \
               --template-file infrastructure/node-group.yml \
-              --tags project=${ENVIRONMENT_NAME}-project-${CIRCLE_WORKFLOW_ID:0:7} \
-              --stack-name "${ENVIRONMENT_NAME}-kube-node-group-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=${ENVIRONMENT_NAME}-project \
+              --stack-name "${ENVIRONMENT_NAME}-kube-node-group" \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://infrastructure/node-group-parameters.json \
               --capabilities CAPABILITY_NAMED_IAM
