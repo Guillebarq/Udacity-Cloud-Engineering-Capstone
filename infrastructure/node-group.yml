@@ -15,9 +15,9 @@ Resources:
               - 'sts:AssumeRole'
       Path: /
       ManagedPolicyArns:
-        - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-        - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-        - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonEKS_CNI_Policy"
+        - !Sub "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+        - !Sub "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+        - !Sub "arn:aws:iam::iam::aws:policy/AmazonEKS_CNI_Policy"
 
 
   NodeGroup:
@@ -31,10 +31,7 @@ Resources:
         MinSize: 1
         DesiredSize: 2
       Subnets:
-        Fn::Split:
-          - ","
-          - Fn::ImportValue:
-              Fn::Sub: ${EnvironmentName}-PUB-NETS
+        Fn::Split: [ "," , { "!ImportValue": CapstoneProject-PUB-NETS}]
 
 Outputs:
   NodeInstanceRole:
