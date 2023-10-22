@@ -188,6 +188,12 @@ Outputs:
         Value: !Ref PublicSubnet2
         Export:
           Name: !Sub ${EnvironmentName}-PUB2-SN
+    
+    SecurityGroup:
+        Description: Security group for the cluster to communicate with worker nodes
+        Value: !Ref ControlPlaneSecurityGroup
+        Export:
+          Name: !Sub ${EnvironmentName}-Sec-Group
 
     # WebServerIAMRole:
     #   Description: 'Allow EC2 instances to manage S3 Bucket'
