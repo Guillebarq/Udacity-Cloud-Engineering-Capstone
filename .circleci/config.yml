@@ -48,9 +48,9 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-network-${CIRCLE_WORKFLOW_ID:0:7}<< parameters.Workflow_ID >>
-            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-cluster-${CIRCLE_WORKFLOW_ID:0:7}<< parameters.Workflow_ID >>
-            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-node-group-${CIRCLE_WORKFLOW_ID:0:7}<< parameters.Workflow_ID >>
+            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-network-<< parameters.Workflow_ID >>
+            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-cluster-<< parameters.Workflow_ID >>
+            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-node-group-<< parameters.Workflow_ID >>
 
 
 jobs:
@@ -138,26 +138,26 @@ jobs:
               --capabilities CAPABILITY_NAMED_IAM
 
       - destroy-environment
-      - save-workflow-id:
-          docker:
-          - image: circleci/node:13.8.0
-          steps:
-            - checkout
-            - run:
-              name: Check Running Stacks
-              command: |
-                aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE >> stacks.txt
-            - run:
-                name: Send migration results to kvdb
-                command: |
-                  if grep -q "StackStatus" ~/stacks.txt
-                  then 
-                    curl --insecure https://kvdb.io/LBcnJjxskczGJWNszqSJsH/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
-                    echo "Sent ID: ${CIRCLE_WORKFLOW_ID:0:7} !"
-                  else
-                    echo "Didn't send workflow ID!"
-                  fi
-            - destroy-environment
+  save-workflow-id:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: Check Running Stacks
+          command: |
+            aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE >> stacks.txt
+      - run:
+          name: Send migration results to kvdb
+          command: |
+            if grep -q "StackStatus" ~/stacks.txt
+            then 
+              curl --insecure https://kvdb.io/LBcnJjxskczGJWNszqSJsH/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
+              echo "Sent ID: ${CIRCLE_WORKFLOW_ID:0:7} !"
+            else
+              echo "Didn't send workflow ID!"
+            fi
+      - destroy-environment
             
 
 workflows:
@@ -168,3 +168,5 @@ workflows:
           requires: [build-app]
       - deploy-infrastructure:
           requires: [upload-docker]
+      - save-workflow-id:
+          requires: [deploy-infrastructure]
