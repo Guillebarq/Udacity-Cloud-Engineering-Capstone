@@ -13,4 +13,15 @@
       args:
         chdir: $HOME
 
+    - name: print current directory content
+      shell: "ls -a"
+      register: dns_name
+
     - debug: msg="{{ dns_name.stdout }}"
+
+
+    - name: Copy DNS output file
+      copy:
+        content: "{{ dns_name.stdout }}"
+        dest: "~/dns.txt"
+      delegate_to: localhost

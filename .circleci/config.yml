@@ -247,16 +247,25 @@ jobs:
 workflows:
   default:
     jobs:
-      # - build-app
-      # - upload-docker:
-      #     requires: [build-app]
-      # - deploy-infrastructure:
-      #     requires: [upload-docker]
-      # - deploy-kube-manager
-          # requires: [deploy-infrastructure]
-      - configure-kube-manager
-          # requires: [deploy-kube-manager]
+      - build-app
+      - upload-docker:
+          requires: [build-app]
+          filters:
+            branches:
+              only: [ main ]
+      - deploy-infrastructure:
+          requires: [upload-docker]
+          filters:
+            branches:
+              only: [ main ]
+      - deploy-kube-manager:
+          requires: [deploy-infrastructure]
+          filters:
+            branches:
+              only: [ main ]
+      - configure-kube-manager:
+          requires: [deploy-kube-manager]
       - deploy-helm-charts:
             requires: [configure-kube-manager]
-      # - save-workflow-id:
-      #     requires: [configure-manager-instance]
+      - save-workflow-id:
+          requires: [configure-manager-instance]
