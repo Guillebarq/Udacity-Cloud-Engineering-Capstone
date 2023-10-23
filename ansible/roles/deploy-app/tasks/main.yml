@@ -3,6 +3,19 @@
     src: "jokes-on-the-cloud"
     dest: $HOME
 
+- name: Check helm deplyment status
+  shell: "helm status jokes-on-the-cloud"
+  register: helm_status
+  ignore_errors: true
+  args:
+    chdir: $HOME
+
+- name: Uninstall last deployment
+  shell: "helm uninstall jokes-on-the-cloud"
+  args:
+    chdir: $HOME
+  when: helm_status.stdout.find('Error') == -1
+
 - name: Apply deployment configuration
   shell: "helm install jokes-on-the-cloud jokes-on-the-cloud"
   args:

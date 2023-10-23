@@ -211,7 +211,7 @@ jobs:
             ansible-playbook -i ~/inventory.txt save-dns-name.yml
             cat ~/dns.txt
       - run:
-          name: Destroy environments
+          name: Uninstall Helm Charts
           when: on_fail
           command: |
             cd ansible
