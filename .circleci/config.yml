@@ -202,9 +202,14 @@ jobs:
       - run:
           name: Configure server
           command: |
-              cat ~/inventory.txt
               cd ansible
               ansible-playbook -i ~/inventory.txt deploy-helm-charts.yml
+      - run:
+          name: Display the app's DNS name
+          command: |
+            cd ansible
+            ansible-playbook -i ~/inventory.txt save-dns-name.yml
+            cat ~/dns.txt
 
   save-workflow-id:
     docker:

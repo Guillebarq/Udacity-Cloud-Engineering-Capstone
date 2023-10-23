@@ -12,3 +12,8 @@
   shell: "helm install jokes-on-the-cloud jokes-on-the-cloud"
   args:
     chdir: $HOME
+
+- name: Wait for ready state
+  shell: "kubectl wait --for=condition=ready pod -l appName=jokes-on-the-cloud --timeout=60s"
+  args:
+    chdir: $HOME

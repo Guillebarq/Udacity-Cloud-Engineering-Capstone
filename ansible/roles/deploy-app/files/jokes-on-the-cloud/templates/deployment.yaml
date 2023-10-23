@@ -19,7 +19,7 @@ spec:
       {{- end }}
       labels:
         {{- include "jokes-on-the-cloud.labels" . | nindent 8 }}
-	{{- with .Values.podLabels }}
+        {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
@@ -37,24 +37,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
-            - name: https
-              containerPort: {{ .Values.appService.port }}
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            tcpSocket:
-              port: 5000
-            initialDelaySeconds: 300
-            periodSeconds: 30
-            httpGet:
-              path: /
-              port: http
+            - containerPort: {{ .Values.appService.port }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}
