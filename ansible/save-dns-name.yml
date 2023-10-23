@@ -13,8 +13,4 @@
       args:
         chdir: $HOME
 
-    - name: Copy DNS output file
-      copy:
-        content: "{{ dns_name.stdout }}"
-        dest: "~/dns.txt"
-      delegate_to: localhost
+    - debug: msg="{{ dns_name.stdout }}"
