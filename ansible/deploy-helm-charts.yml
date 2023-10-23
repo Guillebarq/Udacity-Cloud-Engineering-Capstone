@@ -6,6 +6,7 @@
   become: yes
   vars:
     ENVIRONMENT_NAME: "{{ lookup('env', 'ENVIRONMENT_NAME') }}"
+    CIRCLE_WORKFLOW_ID: "{{ lookup('env', 'CIRCLE_WORKFLOW_ID') }}"
     ansible_host_key_checking: false
   roles:
     - deploy-app

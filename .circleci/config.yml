@@ -48,10 +48,20 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-network
-            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-cluster
-            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-node-group
-
+            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-network-<< parameters.Workflow_ID >>
+            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-cluster-<< parameters.Workflow_ID >>
+            aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-node-group-<< parameters.Workflow_ID >>
+  save_workflow_id:
+    description: Save workflow ID on kvdb
+    steps:
+      - run:
+          name: Save Old Workflow ID to kvdb.io
+          command: |
+            export OLD_WORKFLOW_ID=$(aws cloudformation \
+                      list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+                      --no-paginate --output text)
+            echo "Old Wokflow ID: $OLD_WORKFLOW_ID"
+            curl https://kvdb.io/LBcnJjxskczGJWNszqSJsH/old_workflow_id -d "${OLD_WORKFLOW_ID}"
 
 jobs:
   build-app:
@@ -105,6 +115,16 @@ jobs:
   deploy-infrastructure:
     docker:
       - image: amazon/aws-cli
+    parameters:
+      StackNetworkName:
+        type: string
+        default: ${ENVIRONMENT_NAME}-kube-network-${CIRCLE_WORKFLOW_ID:0:7}
+      StackNodeGroupName:
+        type: string
+        default: ${ENVIRONMENT_NAME}-node-group-${CIRCLE_WORKFLOW_ID:0:7}
+      StackClusterName:
+        type: string
+        default: ${ENVIRONMENT_NAME}-cluster-${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - checkout
       - run:
@@ -113,7 +133,7 @@ jobs:
             aws cloudformation deploy \
               --template-file cloudformation/network-infra.yml \
               --tags project=${ENVIRONMENT_NAME}-project \
-              --stack-name "${ENVIRONMENT_NAME}-kube-network" \
+              --stack-name <<parameters.StackNetworkName>> \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://cloudformation/network-parameters.json
       - run:
@@ -122,7 +142,7 @@ jobs:
             aws cloudformation deploy \
               --template-file cloudformation/kubernetes.yml \
               --tags project=${ENVIRONMENT_NAME}-project \
-              --stack-name "${ENVIRONMENT_NAME}-cluster" \
+              --stack-name <<parameters.StackClusterName>> \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://cloudformation/kubernetes-parameters.json \
               --capabilities CAPABILITY_NAMED_IAM
@@ -132,16 +152,57 @@ jobs:
             aws cloudformation deploy \
               --template-file cloudformation/node-group.yml \
               --tags project=${ENVIRONMENT_NAME}-project \
-              --stack-name "${ENVIRONMENT_NAME}-kube-node-group" \
+              --stack-name <<parameters.StackNodeGroupName>> \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://cloudformation/node-group-parameters.json \
               --capabilities CAPABILITY_NAMED_IAM
 
-      - destroy-environment
+      - destroy-infrastructure:
+          description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+          parameters:
+            StackNetworkName:
+              type: string
+              default: ${ENVIRONMENT_NAME}-kube-network-${CIRCLE_WORKFLOW_ID:0:7}
+            StackNodeGroupName:
+              type: string
+              default: ${ENVIRONMENT_NAME}-node-group-${CIRCLE_WORKFLOW_ID:0:7}
+            StackClusterName:
+              type: string
+              default: ${ENVIRONMENT_NAME}-cluster-${CIRCLE_WORKFLOW_ID:0:7}
+            StackKubeManager:
+              type: string
+              default: ${ENVIRONMENT_NAME}-kube-manager-${CIRCLE_WORKFLOW_ID:0:7}
+          steps:
+            - run:
+              name: Destroy Stacks and Wait
+              when: on_fail
+              command: |
+                if aws cloudformation describe-stacks --stack-name <<parameters.StackKubeManager>>; then
+                  aws cloudformation delete-stack --stack-name <<parameters.StackKubeManager>>
+                fi
+                if aws cloudformation describe-stacks --stack-name <<parameters.StackNodeGroupName>>; then
+                  aws cloudformation delete-stack --stack-name <<parameters.StackNodeGroupName>>
+                  aws cloudformation wait stack-delete-complete --stack-name <<parameters.StackNodeGroupName>>
+                fi
+                if aws cloudformation describe-stacks --stack-name <<parameters.StackClusterName>>; then
+                  aws cloudformation delete-stack --stack-name <<parameters.StackClusterName>>
+                  aws cloudformation wait stack-delete-complete --stack-name <<parameters.StackClusterName>>
+                fi
+                if aws cloudformation describe-stacks --stack-name <<parameters.StackNetworkName>>; then
+                  aws cloudformation delete-stack --stack-name <<parameters.StackNetworkName>>
+                  aws cloudformation wait stack-delete-complete --stack-name <<parameters.StackNetworkName>>
+                fi
+
+      - save_workflow_id
+
 
   deploy-kube-manager:
     docker:
       - image: amazon/aws-cli
+    parameters:
+      StackKubeManager:
+        type: string
+        default: ${ENVIRONMENT_NAME}-kube-manager-${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - checkout
       - run:
@@ -153,7 +214,7 @@ jobs:
             aws cloudformation deploy \
               --template-file cloudformation/kube-manager.yml \
               --tags project=${ENVIRONMENT_NAME}-project \
-              --stack-name "${ENVIRONMENT_NAME}-kube-manager" \
+              --stack-name <<parameters.StackKubeManager>> \
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://cloudformation/kube-manager-parameters.json    
 
@@ -216,33 +277,32 @@ jobs:
             cd ansible
             ansible-playbook -i ~/inventory.txt helm-uninstall.yml
 
-  save-workflow-id:
+  cleanup:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/base:stable
     steps:
       - checkout
+      - install_awscli
+      - install_nodejs
       - run:
-          name: Install dependencies
+          name: Fetch old stack worklow ID and cleanup
           command: |
-            sudo apt install -y tar gzip curl
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip -qq awscliv2.zip
-            sudo ./aws/install
-      - run:
-          name: Check Running Stacks
-          command: |
-            aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE >> stacks.txt
-      - run:
-          name: Send migration results to kvdb
-          command: |
-            if grep -q "StackStatus" ~/stacks.txt
-            then 
-              curl --insecure https://kvdb.io/LBcnJjxskczGJWNszqSJsH/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
-              echo "Sent ID: ${CIRCLE_WORKFLOW_ID:0:7} !"
+            ## Fetch the Old workflow ID
+            export OLD_WORKFLOW_ID=$(curl --insecure https://kvdb.io/LBcnJjxskczGJWNszqSJsH/old_workflow_id)
+            export STACKS=($(aws --region us-east-1 cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
+            echo OLD_WORKFLOW_ID: "${OLD_WORKFLOW_ID}"
+            echo CIRCLE_WORKFLOW_ID "$CIRCLE_WORKFLOW_ID"
+            echo OLD_WORKFLOW_NUMBERs "${OLD_WORKFLOW_ID:10:16}""
+            echo Stack names: "${STACKS[@]}"
+            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OLD_WORKFLOW_ID:0:7}" ]]
+            then
+              echo '----------------------------------Delete Confirmed------------------------------------'
+              aws s3 rm "s3://${OLD_WORKFLOW_ID}" --recursive
+              aws cloudformation delete-stack --stack-name "udapeople-backend-${OLD_WORKFLOW_ID:10:16}"
+              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OLD_WORKFLOW_ID:10:16}"
             else
-              echo "Didn't send workflow ID!"
+              echo '------------------------------------Cannot Cleanup------------------------------------'
             fi
-      # - destroy-environment
 
 workflows:
   default:
@@ -254,7 +314,6 @@ workflows:
             branches:
               only: [ main ]
       - deploy-infrastructure:
-          requires: [upload-docker]
           filters:
             branches:
               only: [ main ]
@@ -263,7 +322,7 @@ workflows:
           filters:
             branches:
               only: [ main ]
-      - configure-kube-manager:
+      - configure-kube-manager: 
           requires: [deploy-kube-manager]
       - deploy-helm-charts:
             requires: [configure-kube-manager]

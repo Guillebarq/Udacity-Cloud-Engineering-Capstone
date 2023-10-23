@@ -42,6 +42,7 @@
     AWS_ACCESS_KEY_ID: "{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
     AWS_SECRET_ACCESS_KEY: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
     AWS_DEFAULT_REGION: "{{ lookup('env', 'AWS_DEFAULT_REGION') }}"
+    CIRCLE_WORKFLOW_ID: "{{ lookup('env', 'CIRCLE_WORKFLOW_ID') }}"
   tasks:
     - name: Run aws configure
       expect:
@@ -63,7 +64,7 @@
     ENVIRONMENT_NAME: "{{ lookup('env', 'ENVIRONMENT_NAME') }}"
   pre_tasks:
     - name: Create a kubeconfig file for the cluster
-      shell: "aws eks update-kubeconfig --region {{ AWS_DEFAULT_REGION }} --name {{ ENVIRONMENT_NAME }}-kube-cluster"
+      shell: "aws eks update-kubeconfig --region {{ AWS_DEFAULT_REGION }} --name {{ ENVIRONMENT_NAME }}-kube-cluster-{{ CIRCLE_WORKFLOW_ID[0:7] }}"
       register: output
 
     - debug: msg="{{ output.stdout }}"

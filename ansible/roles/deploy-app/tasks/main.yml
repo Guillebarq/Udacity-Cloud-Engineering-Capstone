@@ -17,7 +17,7 @@
   when: helm_status.stdout.find('deployed') != -1
 
 - name: Apply deployment configuration
-  shell: "helm install jokes-on-the-cloud jokes-on-the-cloud"
+  shell: "helm install jokes-on-the-cloud jokes-on-the-cloud --set-string image.tag={{ CIRCLE_WORKFLOW_ID[0:7] }}"
   args:
     chdir: $HOME
 
