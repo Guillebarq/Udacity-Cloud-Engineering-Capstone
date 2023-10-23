@@ -14,7 +14,7 @@ spec:
     - port: {{ .Values.appService.port }}
       targetPort: {{ .Values.appService.targetPort }}
       protocol: {{ .Values.appService.protocol }}
-      name: http
+      name: https
 
   selector:
     {{- include "jokes-on-the-cloud.selectorLabels" . | nindent 4 }}
