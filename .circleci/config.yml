@@ -125,6 +125,9 @@ jobs:
       StackClusterName:
         type: string
         default: ${ENVIRONMENT_NAME}-cluster-${CIRCLE_WORKFLOW_ID:0:7}
+      StackKubeManager:
+        type: string
+        default: ${ENVIRONMENT_NAME}-kube-manager-${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - checkout
       - run:
