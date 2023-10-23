@@ -51,7 +51,7 @@
           AWS Secret Access Key: "{{ AWS_SECRET_ACCESS_KEY }}"
           Default region name: "{{ AWS_DEFAULT_REGION }}"
           Default output format: ""
-      no_log: true
+      no_log: false
 
 - name: "Create kubeconfig"
   hosts: ec2
@@ -64,4 +64,7 @@
   pre_tasks:
     - name: Create a kubeconfig file for the cluster
       shell: "aws eks update-kubeconfig --region {{ AWS_DEFAULT_REGION }} --name {{ ENVIRONMENT_NAME }}-kube-cluster"
+      register: output
+
+    - debug: msg="{{ output.stdout }}"
 
