@@ -188,6 +188,51 @@ jobs:
           paths:
             - inventory.txt
 
+deploy-helm-charts:
+  docker:
+    - image: python:3.9.18-slim-bullseye
+  steps:
+    - checkout
+    - install_ansible
+    - add_ssh_keys:
+        fingerprints:
+          - "eb:e7:c6:8f:ab:a7:17:d8:f8:d0:a9:95:28:b2:ba:ed"
+    - attach_workspace:
+        at: ~/
+    - run:
+        name: Configure server
+        command: |
+            cat ~/inventory.txt
+            cd ansible
+            ansible-playbook -i ~/inventory.txt deploy-helm-charts.yml
+
+  save-workflow-id:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt install -y tar gzip curl
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip -qq awscliv2.zip
+            sudo ./aws/install
+      - run:
+          name: Check Running Stacks
+          command: |
+            aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE >> stacks.txt
+      - run:
+          name: Send migration results to kvdb
+          command: |
+            if grep -q "StackStatus" ~/stacks.txt
+            then 
+              curl --insecure https://kvdb.io/LBcnJjxskczGJWNszqSJsH/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
+              echo "Sent ID: ${CIRCLE_WORKFLOW_ID:0:7} !"
+            else
+              echo "Didn't send workflow ID!"
+            fi
+      # - destroy-environment
 
 workflows:
   default:

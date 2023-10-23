@@ -1,0 +1,10 @@
+---
+- name: "Deploy Helm Charts to EKS Cluster"
+  hosts: ec2
+  user: ubuntu
+  gather_facts: false
+  become: yes
+  vars:
+    ENVIRONMENT_NAME: "{{ lookup('env', 'ENVIRONMENT_NAME') }}"
+  roles:
+    - deploy-app

@@ -39,3 +39,15 @@
   shell: kubectl
   args:
     chdir: $HOME
+
+- name: "Install Helm"
+  shell: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
+  args chdir: $HOME
+
+- name: "Execute permissions for get helm script"
+  shell: chmod 700 get_helm.sh
+  args chdir: $HOME
+
+- name: "Install Helm"
+  shell: ./get_helm.sh
+  args chdir: $HOME
