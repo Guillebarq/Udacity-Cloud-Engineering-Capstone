@@ -51,6 +51,8 @@ commands:
             aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-network-<< parameters.Workflow_ID >>
             aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-cluster-<< parameters.Workflow_ID >>
             aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-node-group-<< parameters.Workflow_ID >>
+    no_output_timeout: 20m
+
   save_workflow_id:
     description: Save workflow ID on kvdb
     steps:
@@ -118,16 +120,16 @@ jobs:
     parameters:
       StackNetworkName:
         type: string
-        default: ${ENVIRONMENT_NAME}-kube-network-${CIRCLE_WORKFLOW_ID:0:7}
+        default: ${ENVIRONMENT_NAME}-kube-network
       StackNodeGroupName:
         type: string
-        default: ${ENVIRONMENT_NAME}-node-group-${CIRCLE_WORKFLOW_ID:0:7}
+        default: ${ENVIRONMENT_NAME}-node-group
       StackClusterName:
         type: string
-        default: ${ENVIRONMENT_NAME}-cluster-${CIRCLE_WORKFLOW_ID:0:7}
+        default: ${ENVIRONMENT_NAME}-cluster
       StackKubeManager:
         type: string
-        default: ${ENVIRONMENT_NAME}-kube-manager-${CIRCLE_WORKFLOW_ID:0:7}
+        default: ${ENVIRONMENT_NAME}-kube-manager
     steps:
       - checkout
       - run:
@@ -149,6 +151,7 @@ jobs:
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://cloudformation/kubernetes-parameters.json \
               --capabilities CAPABILITY_NAMED_IAM
+          no_output_timeout: 20m
       - run:
           name: Create Node Group
           command: |
@@ -188,7 +191,7 @@ jobs:
     parameters:
       StackKubeManager:
         type: string
-        default: ${ENVIRONMENT_NAME}-kube-manager-${CIRCLE_WORKFLOW_ID:0:7}
+        default: ${ENVIRONMENT_NAME}-kube-manager
     steps:
       - checkout
       - run:
