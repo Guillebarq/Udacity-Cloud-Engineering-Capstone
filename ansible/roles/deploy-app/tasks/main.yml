@@ -1,6 +1,6 @@
 - name: Copy Helm Charts
   copy:
-    src: "helm"
+    src: "jokes-on-the-cloud"
     dest: $HOME
 
 - name: Apply deployment configuration
