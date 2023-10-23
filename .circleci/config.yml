@@ -268,4 +268,4 @@ workflows:
       - deploy-helm-charts:
             requires: [configure-kube-manager]
       - save-workflow-id:
-          requires: [configure-manager-instance]
+          requires: [configure-kube-manager]
