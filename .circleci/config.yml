@@ -159,43 +159,26 @@ jobs:
               --region ${AWS_DEFAULT_REGION} \
               --parameter-overrides file://cloudformation/node-group-parameters.json \
               --capabilities CAPABILITY_NAMED_IAM
-
-      - destroy-infrastructure:
-          description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-          parameters:
-            StackNetworkName:
-              type: string
-              default: ${ENVIRONMENT_NAME}-kube-network-${CIRCLE_WORKFLOW_ID:0:7}
-            StackNodeGroupName:
-              type: string
-              default: ${ENVIRONMENT_NAME}-node-group-${CIRCLE_WORKFLOW_ID:0:7}
-            StackClusterName:
-              type: string
-              default: ${ENVIRONMENT_NAME}-cluster-${CIRCLE_WORKFLOW_ID:0:7}
-            StackKubeManager:
-              type: string
-              default: ${ENVIRONMENT_NAME}-kube-manager-${CIRCLE_WORKFLOW_ID:0:7}
-          steps:
-            - run:
-              name: Destroy Stacks and Wait
-              when: on_fail
-              command: |
-                if aws cloudformation describe-stacks --stack-name <<parameters.StackKubeManager>>; then
-                  aws cloudformation delete-stack --stack-name <<parameters.StackKubeManager>>
-                fi
-                if aws cloudformation describe-stacks --stack-name <<parameters.StackNodeGroupName>>; then
-                  aws cloudformation delete-stack --stack-name <<parameters.StackNodeGroupName>>
-                  aws cloudformation wait stack-delete-complete --stack-name <<parameters.StackNodeGroupName>>
-                fi
-                if aws cloudformation describe-stacks --stack-name <<parameters.StackClusterName>>; then
-                  aws cloudformation delete-stack --stack-name <<parameters.StackClusterName>>
-                  aws cloudformation wait stack-delete-complete --stack-name <<parameters.StackClusterName>>
-                fi
-                if aws cloudformation describe-stacks --stack-name <<parameters.StackNetworkName>>; then
-                  aws cloudformation delete-stack --stack-name <<parameters.StackNetworkName>>
-                  aws cloudformation wait stack-delete-complete --stack-name <<parameters.StackNetworkName>>
-                fi
-
+      - run:
+          name: Destroy Stacks and Wait
+          when: on_fail
+          command: |
+            if aws cloudformation describe-stacks --stack-name <<parameters.StackKubeManager>>; then
+              aws cloudformation delete-stack --stack-name <<parameters.StackKubeManager>>
+            fi
+            if aws cloudformation describe-stacks --stack-name <<parameters.StackNodeGroupName>>; then
+              aws cloudformation delete-stack --stack-name <<parameters.StackNodeGroupName>>
+              aws cloudformation wait stack-delete-complete --stack-name <<parameters.StackNodeGroupName>>
+            fi
+            if aws cloudformation describe-stacks --stack-name <<parameters.StackClusterName>>; then
+              aws cloudformation delete-stack --stack-name <<parameters.StackClusterName>>
+              aws cloudformation wait stack-delete-complete --stack-name <<parameters.StackClusterName>>
+            fi
+            if aws cloudformation describe-stacks --stack-name <<parameters.StackNetworkName>>; then
+              aws cloudformation delete-stack --stack-name <<parameters.StackNetworkName>>
+              aws cloudformation wait stack-delete-complete --stack-name <<parameters.StackNetworkName>>
+            fi
+            
       - save_workflow_id
 
 
