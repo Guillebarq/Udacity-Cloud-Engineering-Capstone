@@ -51,7 +51,6 @@ commands:
             aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-network-<< parameters.Workflow_ID >>
             aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-cluster-<< parameters.Workflow_ID >>
             aws cloudformation delete-stack --stack-name ${ENVIRONMENT_NAME}-kube-node-group-<< parameters.Workflow_ID >>
-    no_output_timeout: 20m
 
   save_workflow_id:
     description: Save workflow ID on kvdb
