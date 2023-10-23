@@ -188,23 +188,23 @@ jobs:
           paths:
             - inventory.txt
 
-deploy-helm-charts:
-  docker:
-    - image: python:3.9.18-slim-bullseye
-  steps:
-    - checkout
-    - install_ansible
-    - add_ssh_keys:
-        fingerprints:
-          - "eb:e7:c6:8f:ab:a7:17:d8:f8:d0:a9:95:28:b2:ba:ed"
-    - attach_workspace:
-        at: ~/
-    - run:
-        name: Configure server
-        command: |
-            cat ~/inventory.txt
-            cd ansible
-            ansible-playbook -i ~/inventory.txt deploy-helm-charts.yml
+  deploy-helm-charts:
+    docker:
+      - image: python:3.9.18-slim-bullseye
+    steps:
+      - checkout
+      - install_ansible
+      - add_ssh_keys:
+          fingerprints:
+            - "eb:e7:c6:8f:ab:a7:17:d8:f8:d0:a9:95:28:b2:ba:ed"
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Configure server
+          command: |
+              cat ~/inventory.txt
+              cd ansible
+              ansible-playbook -i ~/inventory.txt deploy-helm-charts.yml
 
   save-workflow-id:
     docker:
