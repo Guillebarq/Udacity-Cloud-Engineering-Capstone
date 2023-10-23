@@ -14,7 +14,7 @@
   shell: "helm uninstall jokes-on-the-cloud"
   args:
     chdir: $HOME
-  when: helm_status.stdout.find('Error') == -1
+  when: helm_status.stdout.find('Error') != -1
 
 - name: Apply deployment configuration
   shell: "helm install jokes-on-the-cloud jokes-on-the-cloud"
