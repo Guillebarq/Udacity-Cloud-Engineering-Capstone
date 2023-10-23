@@ -63,8 +63,7 @@
     ENVIRONMENT_NAME: "{{ lookup('env', 'ENVIRONMENT_NAME') }}"
   pre_tasks:
     - name: Create a kubeconfig file for the cluster
-      shell: "aws eks update-kubeconfig --region east-us-1 --name {{ ENVIRONMENT_NAME }}-kube-cluster"
+      shell: "aws eks update-kubeconfig --region {{ AWS_DEFAULT_REGION }} --name {{ ENVIRONMENT_NAME }}-kube-cluster"
       register: output
 
     - debug: msg="{{ output.stdout }}"
-
