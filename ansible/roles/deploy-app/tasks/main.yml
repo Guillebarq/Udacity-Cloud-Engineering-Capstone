@@ -4,6 +4,11 @@
     dest: $HOME
 
 - name: Apply deployment configuration
+  shell: "helm uninstall jokes-on-the-cloud"
+  args:
+    chdir: $HOME
+
+- name: Apply deployment configuration
   shell: "helm install jokes-on-the-cloud jokes-on-the-cloud"
   args:
     chdir: $HOME
