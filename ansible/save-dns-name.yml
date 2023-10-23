@@ -8,7 +8,7 @@
     ansible_host_key_checking: false
   tasks:
     - name: Get the DNS name
-      shell: "kubectl get --namespace default svc -w jokes-on-the-cloud"
+      shell: "kubectl get --namespace default svc jokes-on-the-cloud"
       register: dns_name
       args:
         chdir: $HOME
