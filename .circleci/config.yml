@@ -258,6 +258,7 @@ jobs:
           command: |
             cd ansible
             ansible-playbook -i ~/inventory.txt save-dns-name.yml
+            cat /tmp/dns.txt
       - run:
           name: Uninstall Helm Charts
           when: on_fail
