@@ -3,7 +3,7 @@
     src: "jokes-on-the-cloud"
     dest: $HOME
 
-- name: Apply deployment configuration
+- name: Uninstall last deployment
   shell: "helm uninstall jokes-on-the-cloud"
   args:
     chdir: $HOME
