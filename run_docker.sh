@@ -12,4 +12,4 @@ docker images
 
 # Step 3: 
 # Run flask app
-docker run -it --rm --name jokes-in-a-container -p 5000:5000 jokes-in-a-container
+docker run -it --rm --name jokes-in-a-container -p 80:80 jokes-in-a-container
