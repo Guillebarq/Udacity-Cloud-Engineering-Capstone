@@ -1,0 +1,11 @@
+
+- name: "Save DNS Name"
+  hosts: ec2
+  user: ubuntu
+  gather_facts: false
+  become: yes
+  tasks:
+    - name: Uninstall last deployment
+      shell: "helm uninstall jokes-on-the-cloud"
+      args:
+        chdir: $HOME
