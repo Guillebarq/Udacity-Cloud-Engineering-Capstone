@@ -200,7 +200,7 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Configure server
+          name: Deploy helm charts on cluster
           command: |
               cd ansible
               ansible-playbook -i ~/inventory.txt deploy-helm-charts.yml
@@ -210,6 +210,12 @@ jobs:
             cd ansible
             ansible-playbook -i ~/inventory.txt save-dns-name.yml
             cat ~/dns.txt
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            cd ansible
+            ansible-playbook -i ~/inventory.txt configure-management-server.yml
 
   save-workflow-id:
     docker:
