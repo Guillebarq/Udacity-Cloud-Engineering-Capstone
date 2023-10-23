@@ -11,8 +11,8 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
-    - port: {{ .Values.app-service.port }}
-      targetPort: {{ .Values.app-service.targetPort }}
-      protocol: {{ .Values.app-service.protocol }}
+    - port: {{ .Values.appService.port }}
+      targetPort: {{ .Values.appService.targetPort }}
+      protocol: {{ .Values.appService.protocol }}
   selector:
     {{- include "jokes-on-the-cloud.selectorLabels" . | nindent 4 }}

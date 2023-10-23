@@ -43,7 +43,7 @@ service:
   type: ClusterIP
   port: 80
 
-app-service:
+appService:
   port: 5000
   protocol: TCP
   targetPort: 5000
