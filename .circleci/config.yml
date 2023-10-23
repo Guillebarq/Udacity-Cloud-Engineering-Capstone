@@ -312,5 +312,5 @@ workflows:
           requires: [deploy-kube-manager]
       - deploy-helm-charts:
             requires: [configure-kube-manager]
-      - save-workflow-id:
-          requires: [configure-kube-manager]
+      # - save-workflow-id:
+      #     requires: [configure-kube-manager]
