@@ -190,7 +190,7 @@ jobs:
 
   deploy-helm-charts:
     docker:
-      - image: python:3.9.18-slim-bullseye
+      - image: cimg/base:stable
     steps:
       - checkout
       - install_ansible
