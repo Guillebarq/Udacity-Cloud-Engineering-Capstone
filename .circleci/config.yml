@@ -244,9 +244,9 @@ workflows:
       #     requires: [upload-docker]
       # - deploy-kube-manager
       #     requires: [deploy-infrastructure]
-      - configure-kube-manager
+      # - configure-kube-manager
           # requires: [deploy-kube-manager]
-      - deploy-helm-charts:
-            requires: [configure-kube-manager]
+      - deploy-helm-charts
+            # requires: [configure-kube-manager]
       # - save-workflow-id:
       #     requires: [configure-manager-instance]
