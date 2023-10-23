@@ -248,12 +248,12 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-app
-      - upload-docker:
-          requires: [build-app]
-          filters:
-            branches:
-              only: [ main ]
+      # - build-app
+      # - upload-docker:
+      #     requires: [build-app]
+      #     filters:
+      #       branches:
+      #         only: [ main ]
       # - deploy-infrastructure:
       #     filters:
       #       branches:
