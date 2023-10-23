@@ -23,5 +23,5 @@
     - name: Copy DNS output file
       copy:
         content: "{{ dns_name.stdout }}"
-        dest: "~/dns.txt"
+        dest: "/tmp/dns.txt"
       delegate_to: localhost
